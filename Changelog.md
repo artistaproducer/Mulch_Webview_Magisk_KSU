@@ -1,3 +1,6 @@
-# Mulch Webview Magisk KSU
+#Cambios
 
-Este proyecto ha sido creado con el fin de facilitar la instalcion de Mulch WebView como predeterminado en su dispositivo Android.
+ + NEW: Instalador totalmente online
+ + NEW: ahora puede actualizar directamente desde Magisk/KernelSU
+ + Si quiere obtener la version mas reciente de Mulch WebView solo flashee mi modulo de nuevo
+
