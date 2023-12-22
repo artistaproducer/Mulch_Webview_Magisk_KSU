@@ -118,7 +118,8 @@ on_install() {
   VW_APK_URL=https://gitlab.com/divested-mobile/mulch/-/raw/master/prebuilt/${ARCH}/webview.apk
 
   # Descarga el archivo
-  ui_print "- Verificando version mas reciente de Mulch para [${ARCH}]..."
+  ui_print "- Verificando Last version de Mulch WebView..."
+  sleep 1.0
   ui_print "- Descargando Mulch WebView for [${ARCH}] espere..."
   curl -skL "$VW_APK_URL" -o "$MODPATH/system/product/app/MulchWebview/webview.apk"
   # Comprueba si el archivo se descargó correctamente

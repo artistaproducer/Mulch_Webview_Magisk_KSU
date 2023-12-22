@@ -1,4 +1,4 @@
-#Cambios
+*Cambios*
 
  + NEW: Instalador totalmente online
  + NEW: ahora puede actualizar directamente desde Magisk/KernelSU
