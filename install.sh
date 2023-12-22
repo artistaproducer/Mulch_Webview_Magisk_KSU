@@ -2,18 +2,6 @@ SKIPMOUNT=false
 PROPFILE=true
 POSTFSDATA=true
 LATESTARTSERVICE=true
-MINAPI=27
-ui_print_title() {
-  local msg="$1"
-  local term_width
-  term_width=$(getprop ro.product.max_width)
-
-  local padding
-  padding=$(((term_width - ${#msg}) / 2))
-
-  printf "%-${padding}s%s\n" " " "$msg"
-}
-
 print_modname() {
   MODNAME=$(grep_prop name $TMPDIR/module.prop)
   MODVER=$(grep_prop version $TMPDIR/module.prop)
@@ -102,9 +90,9 @@ print_modname() {
 # Copy/extract your module files into $MODPATH in on_install.
 
 on_install() {
-  curl=$MODPATH/common/tools/$ARCH/curl
-  [ -z $MINAPI ] || { [ $API -lt $MINAPI ] && abort "- ¡El API de tu sistema, $API, es inferior al API mínimo de $MINAPI! ¡Abortando!"; }
-  # The following is the default implementation: extract $ZIPFILE/system to $MODPATH
+  mkdir -p $MODPATH/common/tools/${ARCH}
+  unzip -j -o "$ZIPFILE" "common/tools/${ARCH}/curl" -d $MODPATH/common/tools/${ARCH} >&2
+  CURL=$MODPATH/common/tools/$ARCH/curl # The following is the default implementation: extract $ZIPFILE/system to $MODPATH
   # Extend/change the logic to whatever you want
   getVersion() {
     VERSION=$(dumpsys package us.spotco.mulch_wv | grep -m1 versionName)
@@ -121,7 +109,7 @@ on_install() {
   ui_print "- Verificando Last version de Mulch WebView..."
   sleep 1.0
   ui_print "- Descargando Mulch WebView for [${ARCH}] espere..."
-  $curl -skL "$VW_APK_URL" -o "$MODPATH/system/product/app/MulchWebview/webview.apk"
+  $CURL -skL "$VW_APK_URL" -o "$MODPATH/system/product/app/MulchWebview/webview.apk"
   # Comprueba si el archivo se descargó correctamente
   if [ ! -f "$MODPATH/system/product/app/MulchWebview/webview.apk" ]; then
     echo "- Error al descargar el archivo, sin Internet!"
