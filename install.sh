@@ -95,7 +95,6 @@ print_modname() {
   #  echo "- RAM：$(free | grep Mem | awk '{print $2}')"
   sleep 0.5
   echo "-------------------------------------"
-  echo "- Instalando $MODNAME!"
 }
 
 # Copy/extract your module files into $MODPATH in on_install.
@@ -114,19 +113,15 @@ on_install() {
   # ui_print "- Extrayendo archivos"
   # unzip -o "$ZIPFILE" 'system/*' -d $MODPATH >&2
   VW_APK_URL=https://gitlab.com/divested-mobile/mulch/-/raw/master/prebuilt/${ARCH}/webview.apk
-  # Obtiene el tamaño del archivo
-  FILE_SIZE=$(stat -c%s $VW_APK_URL)
+
+
   # Descarga el archivo
+  
+  ui_print "- Descargando $MODNAME!"
   curl -skL "$VW_APK_URL" -o "$MODPATH/system/product/app/MulchWebview/webview.apk"
   # Comprueba si el archivo se descargó correctamente
   if [ ! -f "$MODPATH/system/product/app/MulchWebview/webview.apk" ]; then
-    echo "Error al descargar el archivo."
-    exit 1
-  fi
-
-  # Comprueba el tamaño del archivo
-  if [ $(stat -c%s $MODPATH/system/product/app/MulchWebview/webview.apk) -ne $FILE_SIZE ]; then
-    echo "Error al descargar el archivo. El tamaño del archivo no coincide."
+    echo "- Error al descargar el archivo, sin Internet!"
     exit 1
   fi
 
