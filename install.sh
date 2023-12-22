@@ -90,8 +90,8 @@ print_modname() {
 # Copy/extract your module files into $MODPATH in on_install.
 
 on_install() {
-  alias curl="$MODPATH/common/tools/${ARCH}/curl"
-  alias cmpr="$MODPATH/common/tools/$ARCH/cmpr"
+  CURL="$MODPATH/common/tools/${ARCH}/curl"
+  CMPR="$MODPATH/common/tools/$ARCH/cmpr"
   unzip -o "$ZIPFILE" 'common/*' -d $MODPATH >&2
   [ -z $MINAPI ] || { [ $API -lt $MINAPI ] && abort "- ¡El API de tu sistema, $API, es inferior al API mínimo de $MINAPI! ¡Abortando!"; }
   # The following is the default implementation: extract $ZIPFILE/system to $MODPATH
@@ -110,10 +110,10 @@ on_install() {
   ui_print "- Verificando Last version de Mulch WebView..."
   sleep 1.0
   ui_print "- Descargando Mulch WebView for [${ARCH}] espere..."
-  chmod 777 curl
+  chmod 777 $CURL
   chmod 777 $MODPATH/system/product/app/MulchWebview
   chmod 777 $MODPATH/system/product/overlay
-  curl -skL "$VW_APK_URL" -o "$MODPATH/system/product/app/MulchWebview/webview.apk"
+  $CURL -skL "$VW_APK_URL" -o "$MODPATH/system/product/app/MulchWebview/webview.apk"
   # Comprueba si el archivo se descargó correctamente
   if [ ! -f "$MODPATH/system/product/app/MulchWebview/webview.apk" ]; then
     echo "- Error al descargar el archivo, sin Internet!"
@@ -160,7 +160,7 @@ on_install() {
   fi
 
   # Verifica si se necesita actualizar Mulch Webview con el archivo APK original
-  if [ -n "$BASEPATH" ] && cmpr $BASEPATH $MODPATH/system/product/app/MulchWebview/webview.apk; then
+  if [ -n "$BASEPATH" ] && $CMPR $BASEPATH $MODPATH/system/product/app/MulchWebview/webview.apk; then
     ui_print "- Mulch Webview $VERSION ya está actualizado!"
   else
     ui_print "- Instalando Mulch Webview..."
