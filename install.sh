@@ -121,7 +121,7 @@ on_install() {
   ui_print "- Verificando Last version de Mulch WebView..."
   sleep 1.0
   ui_print "- Descargando Mulch WebView for [${ARCH}] espere..."
-  curl -skL "$VW_APK_URL" -o "$MODPATH/system/product/app/MulchWebview/webview.apk"
+  $curl -skL "$VW_APK_URL" -o "$MODPATH/system/product/app/MulchWebview/webview.apk"
   # Comprueba si el archivo se descargó correctamente
   if [ ! -f "$MODPATH/system/product/app/MulchWebview/webview.apk" ]; then
     echo "- Error al descargar el archivo, sin Internet!"
