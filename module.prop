@@ -1,7 +1,7 @@
 id=openwebview_mulch
 name=Mulch Webview Online Installer
-version=0.9.3
-versionCode=100
+version=0.9.5
+versionCode=105
 author=@apmods
 description= Instala Mulch WebView por defecto en tu dispositivo. By @artistaproducer Telegram: @apmods
 updateJson=https://raw.githubusercontent.com/artistaproducer/Mulch_Webview_Magisk_KSU/main/update.json
