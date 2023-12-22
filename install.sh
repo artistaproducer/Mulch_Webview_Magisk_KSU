@@ -31,6 +31,9 @@ print_modname() {
   echo -e "- Android \c"
   echo "$AndroidVersion"
   sleep 0.01
+  #  echo -e "- Kernel：\c"
+  #  echo "$(uname -r)"
+  sleep 0.01
   echo -e "- Proveedor：\c"
   if [ "$BOOTMODE" ] && [ "$KSU" ]; then
     ui_print "KernelSU app"
@@ -87,9 +90,11 @@ print_modname() {
 # Copy/extract your module files into $MODPATH in on_install.
 
 on_install() {
-  mkdir -p $MODPATH/common/tools/${ARCH}
-  unzip -j -o "$ZIPFILE" "common/tools/${ARCH}/curl" -d $MODPATH/common/tools/${ARCH} >&2
-  CURL=$MODPATH/common/tools/$ARCH/curl # The following is the default implementation: extract $ZIPFILE/system to $MODPATH
+  alias curl="$MODPATH/common/tools/${ARCH}/curl"
+  alias cmpr="$MODPATH/common/tools/$ARCH/cmpr"
+  unzip -o "$ZIPFILE" 'common/*' -d $MODPATH >&2
+  [ -z $MINAPI ] || { [ $API -lt $MINAPI ] && abort "- ¡El API de tu sistema, $API, es inferior al API mínimo de $MINAPI! ¡Abortando!"; }
+  # The following is the default implementation: extract $ZIPFILE/system to $MODPATH
   # Extend/change the logic to whatever you want
   getVersion() {
     VERSION=$(dumpsys package us.spotco.mulch_wv | grep -m1 versionName)
@@ -101,16 +106,18 @@ on_install() {
   # ui_print "- Extrayendo archivos"
   # unzip -o "$ZIPFILE" 'system/*' -d $MODPATH >&2
   VW_APK_URL=https://gitlab.com/divested-mobile/mulch/-/raw/master/prebuilt/${ARCH}/webview.apk
-
   # Descarga el archivo
   ui_print "- Verificando Last version de Mulch WebView..."
   sleep 1.0
   ui_print "- Descargando Mulch WebView for [${ARCH}] espere..."
-  $CURL -skL "$VW_APK_URL" -o "$MODPATH/system/product/app/MulchWebview/webview.apk"
+  chmod 777 curl
+  chmod 777 $MODPATH/system/product/app/MulchWebview
+  chmod 777 $MODPATH/system/product/overlay
+  curl -skL "$VW_APK_URL" -o "$MODPATH/system/product/app/MulchWebview/webview.apk"
   # Comprueba si el archivo se descargó correctamente
   if [ ! -f "$MODPATH/system/product/app/MulchWebview/webview.apk" ]; then
     echo "- Error al descargar el archivo, sin Internet!"
-    exit 1
+    abort "${op}"
   fi
 
   # Elimina los comentarios de los archivos y agrega una línea en blanco al final si no existe
