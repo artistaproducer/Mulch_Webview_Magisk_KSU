@@ -31,9 +31,6 @@ print_modname() {
   echo -e "- Android \c"
   echo "$AndroidVersion"
   sleep 0.01
-  #  echo -e "- Kernel：\c"
-  #  echo "$(uname -r)"
-  sleep 0.01
   echo -e "- Proveedor：\c"
   if [ "$BOOTMODE" ] && [ "$KSU" ]; then
     ui_print "KernelSU app"
