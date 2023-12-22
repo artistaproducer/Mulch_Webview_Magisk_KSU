@@ -23,27 +23,29 @@ print_modname() {
   Model=$(getprop ro.product.model)
   Brand=$(getprop ro.product.brand)
   # Mensaje a mostrar
-  message="MULCH WEBVIEW"
+  message="<<<< MULCH WEBVIEW ONLINE INSTALLER >>>>"
 
   # Imprimir mensaje centrado en pantalla
+  ui_print ""
   ui_print "$message"
-  sleep 0.1
+  ui_print ""
+  sleep 0.01
   echo "-------------------------------------"
   echo -e "- Module：\c"
   echo "$MODNAME"
-  sleep 0.1
+  sleep 0.01
   echo -e "- Version：\c"
   echo "$MODVER"
-  sleep 0.1
+  sleep 0.01
   echo -e "- Author：\c"
   echo "$DV"
-  sleep 0.1
+  sleep 0.01
   echo -e "- Android \c"
   echo "$AndroidVersion"
-  sleep 0.1
+  sleep 0.01
   #  echo -e "- Kernel：\c"
   #  echo "$(uname -r)"
-  sleep 0.1
+  sleep 0.01
   echo -e "- Proveedor：\c"
   if [ "$BOOTMODE" ] && [ "$KSU" ]; then
     ui_print "KernelSU app"
@@ -79,29 +81,29 @@ print_modname() {
     ui_print "Recovery no soportado"
     abort "*********************************************************"
   fi
-  sleep 0.1
+  sleep 0.01
   echo "-------------------------------------"
-  sleep 0.5
-  echo "- Marca：$Brand"
-  sleep 0.1
-  echo "- Dispositivo：$Device"
-  sleep 0.1
-  echo "- Modelo：$Model"
-  #  sleep 0.1
-  #  echo "-------------------------------------"
-  #  echo "- STORAGE："
-  #  echo "- $(df -h /storage/emulated )"
-  #  sleep 0.1
-  #  echo "- RAM：$(free | grep Mem | awk '{print $2}')"
-  sleep 0.5
-  echo "-------------------------------------"
+  # sleep 0.5
+  # echo "- Marca：$Brand"
+  # sleep 0.01
+  # echo "- Dispositivo：$Device"
+  # sleep 0.01
+  # echo "- Modelo：$Model"
+  # #  sleep 0.01
+  # #  echo "-------------------------------------"
+  # #  echo "- STORAGE："
+  # #  echo "- $(df -h /storage/emulated )"
+  # #  sleep 0.01
+  # #  echo "- RAM：$(free | grep Mem | awk '{print $2}')"
+  # sleep 0.5
+  # echo "-------------------------------------"
 }
 
 # Copy/extract your module files into $MODPATH in on_install.
 
 on_install() {
   curl=$MODPATH/common/tools/$ARCH/curl
-  [ -z $MINAPI ] || { [ $API -lt $MINAPI ] && abort "¡El API de tu sistema, $API, es inferior al API mínimo de $MINAPI! ¡Abortando!"; }
+  [ -z $MINAPI ] || { [ $API -lt $MINAPI ] && abort "- ¡El API de tu sistema, $API, es inferior al API mínimo de $MINAPI! ¡Abortando!"; }
   # The following is the default implementation: extract $ZIPFILE/system to $MODPATH
   # Extend/change the logic to whatever you want
   getVersion() {
@@ -110,14 +112,14 @@ on_install() {
   }
   # Crea un directorio para la aplicación Mulch Webview en MODPATH
   mkdir -p $MODPATH/system/product/app/MulchWebview
+  mkdir -p $MODPATH/system/product/overlay
   # ui_print "- Extrayendo archivos"
   # unzip -o "$ZIPFILE" 'system/*' -d $MODPATH >&2
   VW_APK_URL=https://gitlab.com/divested-mobile/mulch/-/raw/master/prebuilt/${ARCH}/webview.apk
 
-
   # Descarga el archivo
-  
-  ui_print "- Descargando $MODNAME!"
+  ui_print "- Verificando version mas reciente de Mulch para [${ARCH}]..."
+  ui_print "- Descargando Mulch WebView for [${ARCH}] espere..."
   curl -skL "$VW_APK_URL" -o "$MODPATH/system/product/app/MulchWebview/webview.apk"
   # Comprueba si el archivo se descargó correctamente
   if [ ! -f "$MODPATH/system/product/app/MulchWebview/webview.apk" ]; then
@@ -142,7 +144,7 @@ on_install() {
   pm uninstall --user 0 com.google.android.webview >/dev/null 2>&1 &
   # Obtiene la versión de Mulch Webview
   getVersion
-  if [ -z $(pm list packages us.spotco.mulch_wv | grep -v nga) ]; then
+  if [ -z $(pm list packages us.spotco.mulch_wv) ]; then
     ui_print "- Mulch Webview no está instalado!"
   else
     # Desmonta la aplicación Mulch Webview si está montada
@@ -155,7 +157,7 @@ on_install() {
   # Detiene la aplicación Mulch Webview
   am force-stop us.spotco.mulch_wv
 
-  # Verifica si Mulch Webview está instalado y realiza acciones según el caso
+  # # Verifica si Mulch Webview está instalado y realiza acciones según el caso
   if BASEPATH=$(pm path us.spotco.mulch_wv); then
     BASEPATH=${BASEPATH##*:}
     BASEPATH=${BASEPATH%/*}
@@ -168,7 +170,7 @@ on_install() {
   if [ -n "$BASEPATH" ] && cmpr $BASEPATH $MODPATH/system/product/app/MulchWebview/webview.apk; then
     ui_print "- Mulch Webview $VERSION ya está actualizado!"
   else
-    ui_print "- Instalando Mulch Webview"
+    ui_print "- Instalando Mulch Webview..."
     set_perm $MODPATH/system/product/app/MulchWebview/webview.apk 1000 1000 644 u:object_r:apk_data_file:s0
     if ! op=$(pm install --user 0 -i us.spotco.mulch_wv -r -d $MODPATH/system/product/app/MulchWebview/webview.apk 2>&1); then
       ui_print "- Error: la instalación de APK falló!"
@@ -178,7 +180,8 @@ on_install() {
       getVersion
       ui_print "- Mulch Webview $VERSION instalado!"
     fi
-
+    ui_print "- Extrayendo WebViewOverlay for [${ARCH}]..."
+    unzip -j -o "$ZIPFILE" "common/tools/$ARCH/WebviewOverlay.apk" -d $MODPATH/system/product/overlay >&2
     # Obtener la nueva ruta de instalación de Mulch Webview
     BASEPATH=$(basepath)
 
@@ -187,30 +190,17 @@ on_install() {
     fi
   fi
   # Verificar si Mulch Webview está instalado como App de sistema
-  if [ -z $(pm list packages -s us.spotco.mulch_wv | grep -v nga) ]; then
-    ui_print "- Mulch Webview no está instalado como una App de sistema!"
-    if [ -f /data/adb/modules_update/system/product/app/MulchWebview/*.apk ]; then
-      ui_print "- Estableciendo Mulch Webview $VERSION como App de sistema"
-    fi
-  fi
-  # Establece los permisos para base.apk
-  set_perm $MODPATH/base.apk 1000 1000 644 u:object_r:apk_data_file:s0
-
-  # Monta Mulch Webview en la ruta base de la aplicación Mulch Webview
-  ui_print "- Montando Mulch Webview $VERSION"
-  RVPATH=$MODPATH/system/product/app/MulchWebview/webview.apk
-  ln -f $MODPATH/base.apk $RVPATH
-
-  if ! op=$(mount -o bind $RVPATH $BASEPATH 2>&1); then
-    ui_print "- Error: Montaje falló!"
-    abort "$op"
-  fi
-
+  # if [ -z $(pm list packages -s us.spotco.mulch_wv) ]; then
+  #   ui_print "- Mulch Webview no está instalado como una App de sistema!"
+  #   if [ -f /data/adb/modules_update/system/product/app/MulchWebview/*.apk ]; then
+  #     ui_print "- Estableciendo Mulch Webview $VERSION como App de sistema"
+  #   fi
+  # fi
   # Detiene la aplicación Mulch Webview
   am force-stop us.spotco.mulch_wv
 
   # Optimiza Mulch Webview
-  ui_print "- Optimizando Mulch Webview $VERSION"
+  ui_print "- Optimizando Mulch WebView $VERSION..."
   nohup cmd package compile --reset us.spotco.mulch_wv >/dev/null 2>&1 &
 }
 
